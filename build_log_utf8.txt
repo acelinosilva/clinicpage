@@ -1,0 +1,44 @@
+﻿
+> clinicpage@0.1.0 build
+> next build
+
+node.exe : 
+No linha:1 caractere:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo 
+...
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (:String) [],    
+ RemoteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+> Build error occurred
+Error: EPERM: 
+operation not 
+permitted, unlink 'C:\U
+sers\celti\OneDrive\├ür
+ea de Trabalho\landing 
+pages clinicas\clinicpa
+ge\.next\static\q1FeUqY
+U-U767ZSkg9V2S'
+    at ignore-listed 
+frames {
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'unlink',
+  path: 'C:\\Users\\cel
+ti\\OneDrive\\├ürea de 
+Trabalho\\landing 
+pages clinicas\\clinicp
+age\\.next\\static\\q1F
+eUqYU-U767ZSkg9V2S'
+}
