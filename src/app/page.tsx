@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import PublicHeader from '@/components/shared/PublicHeader'
 import PublicFooter from '@/components/shared/PublicFooter'
+import { CheckoutButton } from '@/components/shared/CheckoutButton'
 import { cn } from '@/lib/utils'
 
 export default function Home() {
@@ -279,6 +280,7 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
               {[
                 {
+                  id: 'free',
                   name: 'Iniciante',
                   price: '0',
                   desc: 'Para quem está começando seu consultório.',
@@ -292,6 +294,7 @@ export default function Home() {
                   popular: false
                 },
                 {
+                  id: 'pro',
                   name: 'Profissional',
                   price: '85',
                   desc: 'O essencial para quem quer escalar resultados.',
@@ -306,6 +309,7 @@ export default function Home() {
                   popular: true
                 },
                 {
+                  id: 'clinic',
                   name: 'Clínica Plus',
                   price: '185',
                   desc: 'Poder total para clínicas e redes médicas.',
@@ -316,7 +320,7 @@ export default function Home() {
                     'SEO Local de Elite Avançado',
                     'Suporte Prioritário VIP'
                   ],
-                  cta: 'Falar com Consultor',
+                  cta: 'Assinar Plus',
                   popular: false
                 }
               ].map((plan, i) => (
@@ -345,15 +349,16 @@ export default function Home() {
                       </li>
                     ))}
                   </ul>
-                  <Link
-                    href="/cadastro"
-                    className={cn(
-                      "btn w-full font-bold",
-                      plan.popular ? "btn-primary" : "btn-secondary"
-                    )}
-                  >
-                    {plan.cta}
-                  </Link>
+                  {plan.id === 'free' ? (
+                    <Link
+                      href="/cadastro"
+                      className="btn w-full font-bold btn-secondary"
+                    >
+                      {plan.cta}
+                    </Link>
+                  ) : (
+                    <CheckoutButton planId={plan.id} cta={plan.cta} popular={plan.popular} />
+                  )}
                 </div>
               ))}
             </div>
@@ -411,6 +416,6 @@ export default function Home() {
       </main>
 
       <PublicFooter />
-    </div>
+    </div >
   )
 }

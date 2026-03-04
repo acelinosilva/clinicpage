@@ -35,6 +35,24 @@ export default function CadastroPage() {
             setError(error.message)
             setLoading(false)
         } else if (data.session) {
+            const redirectParam = new URLSearchParams(window.location.search).get('redirect')
+            if (redirectParam?.startsWith('checkout_')) {
+                const planId = redirectParam.replace('checkout_', '')
+                try {
+                    const res = await fetch('/api/checkout', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ planId })
+                    })
+                    const apiData = await res.json()
+                    if (apiData.url) {
+                        window.location.href = apiData.url
+                        return
+                    }
+                } catch (e) {
+                    console.error('Checkout error after signup:', e)
+                }
+            }
             router.push('/dashboard')
             router.refresh()
         } else {
