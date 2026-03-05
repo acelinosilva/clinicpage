@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { PLANS, Plan } from '@/lib/plans'
+import { PLANS, Plan, formatPrice } from '@/lib/plans'
 import { Check, Rocket, Zap, Crown, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase-client'
@@ -120,16 +120,16 @@ export default function PlansPage() {
                         <Rocket className="w-5 h-5 text-[#0D7C66]" />
                         <h3 className="font-bold text-[#0D7C66]">Profissional</h3>
                     </div>
-                    <div className="text-4xl font-black text-[#0F172A] mb-6">R$ 97<span className="text-sm font-normal text-[#94A3B8]">/mês</span></div>
+                    <div className="text-4xl font-black text-[#0F172A] mb-6">{formatPrice(PLANS.pro.price_brl_monthly)}<span className="text-sm font-normal text-[#94A3B8]">/mês</span></div>
 
                     <ul className="space-y-4 mb-8">
                         <li className="flex items-center gap-3 text-sm text-[#475569]">
                             <Check className="w-4 h-4 text-[#0D7C66] shrink-0" />
-                            <strong>5 landing pages</strong> ativas
+                            <strong>{PLANS.pro.limits.landing_pages_active} landing pages</strong> ativas
                         </li>
                         <li className="flex items-center gap-3 text-sm text-[#475569]">
                             <Check className="w-4 h-4 text-[#0D7C66] shrink-0" />
-                            <strong>IA Ilimitada</strong>
+                            <strong>{PLANS.pro.limits.ai_credits_per_month} Créditos de IA</strong> p/ mês
                         </li>
                         <li className="flex items-center gap-3 text-sm text-[#475569]">
                             <Check className="w-4 h-4 text-[#0D7C66] shrink-0" />
@@ -156,7 +156,7 @@ export default function PlansPage() {
                         <Crown className="w-5 h-5 text-[#F97316]" />
                         <h3 className="font-bold text-[#475569]">Clínica Plus</h3>
                     </div>
-                    <div className="text-4xl font-black text-[#0F172A] mb-6">R$ 197<span className="text-sm font-normal text-[#94A3B8]">/mês</span></div>
+                    <div className="text-4xl font-black text-[#0F172A] mb-6">{formatPrice(PLANS.clinic.price_brl_monthly)}<span className="text-sm font-normal text-[#94A3B8]">/mês</span></div>
 
                     <ul className="space-y-4 mb-8">
                         <li className="flex items-center gap-3 text-sm text-[#475569]">

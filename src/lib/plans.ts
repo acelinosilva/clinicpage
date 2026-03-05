@@ -71,7 +71,7 @@ export const PLANS: Record<Plan, PlanConfig> = {
     price_brl_yearly: 87000,
     limits: {
       landing_pages_active: 5,
-      ai_credits_per_month: -1,
+      ai_credits_per_month: 50,
       templates_available: -1,
       custom_domain: true,
       custom_domains_limit: 1,
@@ -97,8 +97,8 @@ export const PLANS: Record<Plan, PlanConfig> = {
   clinic: {
     id: 'clinic',
     name: 'Clínica',
-    price_brl_monthly: 24700,
-    price_brl_yearly: 222000,
+    price_brl_monthly: 19700,
+    price_brl_yearly: 177000,
     limits: {
       landing_pages_active: -1,
       ai_credits_per_month: -1,

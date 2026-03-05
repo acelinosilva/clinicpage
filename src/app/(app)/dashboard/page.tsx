@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Plus, LayoutDashboard, TrendingUp, Users, Eye, ArrowRight, Globe, FileText, Pause, Loader2 } from 'lucide-react'
+import { Plus, LayoutDashboard, TrendingUp, Users, Eye, ArrowRight, Globe, FileText, Pause, Loader2, Sparkles } from 'lucide-react'
 import { createClient } from '@/lib/supabase-client'
 import { cn } from '@/lib/utils'
 
@@ -49,7 +49,7 @@ export default function DashboardPage() {
                     })
                 }
 
-                setUser(authUser)
+                setUser(profile)
 
                 // 2. Fetch LPs
                 const { data: pages } = await supabase
@@ -135,6 +135,42 @@ export default function DashboardPage() {
                         <div className="text-xs text-[#94A3B8] mt-0.5">{stat.label}</div>
                     </div>
                 ))}
+            </div>
+
+            {/* Plan Usage Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div className="lg:col-span-2 card bg-white border-[#E2E8F0] overflow-hidden">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-3">
+                                <span className="badge badge-blue font-bold uppercase tracking-wider text-[10px]">Plano {user?.plan === 'free' ? 'Gratuito' : user?.plan === 'pro' ? 'Profissional' : 'Clínica Plus'}</span>
+                            </div>
+                            <h3 className="text-lg font-bold text-[#0F172A] mb-1">Seu Uso de Landing Pages</h3>
+                            <p className="text-xs text-[#64748B] mb-4">Você está usando {lps.length} de {user?.plan === 'free' ? '1' : user?.plan === 'pro' ? '5' : 'ilimitadas'} landing pages disponíveis no seu plano.</p>
+
+                            <div className="w-full bg-[#F1F5F9] h-2 rounded-full overflow-hidden mb-2">
+                                <div
+                                    className="bg-[#0D7C66] h-full transition-all duration-500"
+                                    style={{ width: `${Math.min(100, (lps.length / (user?.plan === 'free' ? 1 : user?.plan === 'pro' ? 5 : lps.length || 1)) * 100)}%` }}
+                                />
+                            </div>
+                        </div>
+                        {user?.plan !== 'clinic' && (
+                            <Link href="/planos" className="btn btn-primary h-12 px-8 shadow-lg shadow-[#0D7C66]/20 shrink-0">
+                                <Sparkles className="w-4 h-4" />
+                                Fazer Upgrade
+                            </Link>
+                        )}
+                    </div>
+                </div>
+
+                <div className="card bg-[#F8FAFC] border-dashed border-[#CBD5E1] flex flex-col items-center justify-center text-center py-6">
+                    <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center mb-3">
+                        <TrendingUp className="w-5 h-5 text-[#0D7C66]" />
+                    </div>
+                    <h4 className="font-bold text-[#0F172A] text-sm">IA de Alta Performance</h4>
+                    <p className="text-[11px] text-[#64748B] mt-1 max-w-[180px]">Otimize suas conversões com sugestões geradas por inteligência artificial.</p>
+                </div>
             </div>
 
             {/* Landing pages list */}
