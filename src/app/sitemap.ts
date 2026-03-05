@@ -1,8 +1,14 @@
 import { MetadataRoute } from 'next'
 import { createServiceClient } from '@/lib/supabase-server'
+import { headers } from 'next/headers'
+
+export const dynamic = 'force-dynamic'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://clinicpage.com.br'
+    const headersList = await headers()
+    const host = headersList.get('host') || 'clinicpage.com.br'
+    const protocol = headersList.get('x-forwarded-proto') || 'https'
+    const baseUrl = `${protocol}://${host}`
 
     let dynamicRoutes: MetadataRoute.Sitemap = []
 
