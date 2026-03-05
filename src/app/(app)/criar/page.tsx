@@ -11,6 +11,7 @@ import MiniHeroPreview from '@/components/forms/MiniHeroPreview'
 import { cn } from '@/lib/utils'
 import { SPECIALTIES } from '@/constants/specialties'
 import { TEMPLATES } from '@/types'
+import { PLANS, Plan } from '@/lib/plans'
 import { createClient } from '@/lib/supabase-client'
 
 export default function CriarLPPage() {
@@ -75,12 +76,16 @@ export default function CriarLPPage() {
                 .select('*', { count: 'exact', head: true })
                 .eq('user_id', user.id)
 
-            const currentPlan = (profile?.plan || 'free') as 'free' | 'pro' | 'clinic'
+            const currentPlan = (profile?.plan || 'free') as Plan
             const lpCount = count || 0
+            const planConfig = PLANS[currentPlan]
 
-            // Limite de 1 LP para o plano gratuito
-            if (currentPlan === 'free' && lpCount >= 1) {
-                throw new Error('Você atingiu o limite de 1 landing page do plano gratuito. Faça upgrade para criar mais.')
+            // Verificação dinâmica de limites
+            if (planConfig.limits.landing_pages_active !== -1 && lpCount >= planConfig.limits.landing_pages_active) {
+                const message = currentPlan === 'free'
+                    ? 'Você atingiu o limite de 1 landing page do plano gratuito. Faça upgrade para o plano Profissional para criar até 3 páginas!'
+                    : `Você atingiu o limite de ${planConfig.limits.landing_pages_active} landing pages do seu plano ${planConfig.name}. Faça upgrade para o Clínica Plus para páginas ilimitadas!`
+                throw new Error(message)
             }
 
             // 2. Chamar API de geração com IA
@@ -181,6 +186,14 @@ export default function CriarLPPage() {
             </header>
 
             <main className="pt-32 pb-20 px-6 max-w-4xl mx-auto flex flex-col items-center">
+                {error && (
+                    <div className="w-full max-w-xl mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-center gap-3 text-red-600 animate-in fade-in slide-in-from-top-2">
+                        <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+                            <Info className="w-4 h-4" />
+                        </div>
+                        <p className="text-sm font-medium">{error}</p>
+                    </div>
+                )}
 
                 {/* Step 1: Basic Info */}
                 {step === 1 && (

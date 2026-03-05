@@ -40,13 +40,14 @@ export async function POST(req: NextRequest) {
         // Create user if doesn't exist (basic onboarding)
         if (!user) {
             console.log('User profile not found, creating...', userId)
+            // Cria um novo usuário com os limites do plano gratuito (PLANS.free)
             const { data: newUser, error: insertError } = await supabase.from('users').insert({
                 id: userId,
                 email: authUser.email || briefing.email || '',
                 name: briefing.clinic_name,
                 plan: 'free',
                 ai_credits_used: 0,
-                ai_credits_limit: 3,
+                ai_credits_limit: PLANS.free.limits.ai_credits_per_month,
             }).select().single()
 
             if (insertError || !newUser) {
@@ -57,12 +58,37 @@ export async function POST(req: NextRequest) {
         }
 
         const planConfig = PLANS[user.plan as Plan]
-        if (planConfig.limits.ai_credits_per_month !== -1 && user.ai_credits_used >= user.ai_credits_limit) {
-            return NextResponse.json({ error: 'Limite de créditos de IA atingido. Faça upgrade para continuar.' }, { status: 403 })
+
+        // 1a. Verificar limites de Landing Pages (Server-side)
+        const { count: lpCount } = await supabase
+            .from('landing_pages')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userId)
+
+        if (planConfig.limits.landing_pages_active !== -1 && (lpCount || 0) >= planConfig.limits.landing_pages_active) {
+            return NextResponse.json({
+                error: `Limite de landing pages do plano ${planConfig.name} atingido. Faça upgrade para criar mais.`
+            }, { status: 403 })
+        }
+
+        // 1b. Verificar créditos de IA
+        const creditsLimit = planConfig.limits.ai_credits_per_month
+        if (creditsLimit !== -1 && user.ai_credits_used >= creditsLimit) {
+            return NextResponse.json({
+                error: 'Limite de créditos de IA atingido. Faça upgrade para continuar gerando conteúdo.'
+            }, { status: 403 })
         }
 
         // 2. Generate content via Gemini
-        const { sections, seo: generatedSeo } = await generateFullLandingPage(briefing)
+        console.log('--- Invocando IA para gerar página ---')
+        let generated;
+        try {
+            generated = await generateFullLandingPage(briefing)
+        } catch (aiErr: any) {
+            console.error('❌ [IA Generation Error]:', aiErr)
+            throw new Error(`Falha na geração pela IA: ${aiErr.message || 'Erro desconhecido'}`)
+        }
+        const { sections, seo: generatedSeo } = generated
 
         // 3. Prepare final data
         const finalSeo = {
@@ -119,8 +145,8 @@ export async function POST(req: NextRequest) {
         }
 
         // 5. Update user credits
-        if (user && user.plan !== 'clinic' && user.plan !== 'pro') {
-            await supabase.from('users').update({ ai_credits_used: user.ai_credits_used + 1 }).eq('id', user.id)
+        if (user && user.plan !== 'clinic') {
+            await supabase.from('users').update({ ai_credits_used: (user.ai_credits_used || 0) + 1 }).eq('id', user.id)
         }
 
         return NextResponse.json({ id: lp.id, slug: lp.slug })
