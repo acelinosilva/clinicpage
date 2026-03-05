@@ -4,13 +4,13 @@ import { stripe } from '@/lib/stripe'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-
-// Use o Service Role para ignorar RLS e poder atualizar o banco no backend
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
-
 export async function POST(req: Request) {
+    // Lazy init — avoids build-time crash when env vars not present
+    const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
     const body = await req.text()
     const head = await headers()
     const signature = head.get('Stripe-Signature') as string
