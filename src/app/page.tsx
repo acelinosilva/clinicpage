@@ -11,8 +11,69 @@ import { CheckoutButton } from '@/components/shared/CheckoutButton'
 import { cn } from '@/lib/utils'
 
 export default function Home() {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'ClinicPage',
+    operatingSystem: 'Web',
+    applicationCategory: 'BusinessApplication',
+    offers: {
+      '@type': 'Offer',
+      price: '0.00',
+      priceCurrency: 'BRL',
+    },
+    description: 'Gerador de landing page para clinicas grátis e premium com recursos de inteligência artificial para médicos e centros de saúde.'
+  }
+
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: 'Preciso ter conhecimentos técnicos?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Absolutamente não. Nossa IA cuida de toda a parte técnica, desde o código até o design. Você só precisa preencher os dados da sua clínica.'
+        }
+      },
+      {
+        '@type': 'Question',
+        name: 'Posso usar meu próprio domínio?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Sim! Nos planos Profissional e Clínica Plus você pode conectar o seu domínio (ex: www.suaclinica.com.br) facilmente.'
+        }
+      },
+      {
+        '@type': 'Question',
+        name: 'Como recebo os contatos dos pacientes?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'A maioria das landing pages foca em converter o paciente no WhatsApp. Você receberá as mensagens direto no número configurado.'
+        }
+      },
+      {
+        '@type': 'Question',
+        name: 'E se eu quiser alterar alguma coisa depois?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Temos um editor visual intuitivo onde você pode trocar textos, cores e imagens a qualquer momento com poucos cliques.'
+        }
+      }
+    ]
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       <PublicHeader />
 
       <main className="flex-1">
@@ -20,12 +81,12 @@ export default function Home() {
         <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden gradient-soft">
           <div className="container-wide relative z-10">
             <div className="max-w-4xl mx-auto text-center">
-              <div className="inline-flex items-center gap-2 bg-[#0D7C66]/10 border border-[#0D7C66]/20 rounded-full px-4 py-1.5 text-sm font-bold text-[#0D7C66] mb-8 animate-fade-in">
-                <Sparkles className="w-4 h-4" />
-                Inteligência Artificial para Clínicas e Consultórios
+              <div className="inline-flex items-center justify-center text-center gap-2 bg-[#0D7C66]/10 border border-[#0D7C66]/20 rounded-full px-4 py-1.5 text-xs sm:text-sm font-bold text-[#0D7C66] mb-8 animate-fade-in">
+                <Sparkles className="w-4 h-4 shrink-0" />
+                <span>Inteligência Artificial para Clínicas e Consultórios</span>
               </div>
 
-              <h1 className="text-5xl md:text-7xl font-black text-[#0F172A] mb-6 leading-tight animate-slide-up">
+              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black text-[#0F172A] mb-6 leading-tight animate-slide-up">
                 Sua clínica merece uma <br className="hidden md:block" />
                 <span className="text-[#0D7C66]">Landing Page de Elite</span>
               </h1>

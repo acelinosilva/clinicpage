@@ -77,7 +77,7 @@ export default function PublicHeader({
                 !isScrolled && isMarketing && "bg-white/5" // Subtle hint for marketing
             )}
         >
-            <div className="container-wide px-4 flex items-center justify-between">
+            <div className="container-wide flex items-center justify-between">
                 {/* Logo / Name */}
                 <button
                     onClick={() => scrollTo('inicio')}

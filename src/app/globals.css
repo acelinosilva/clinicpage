@@ -141,19 +141,19 @@
 
 /* ── Section layout ──────────────────────────────── */
 @utility section {
-  @apply py-20 px-4;
+  @apply py-16 md:py-24;
 }
 
 @utility section-sm {
-  @apply py-12 px-4;
+  @apply py-12 md:py-16;
 }
 
 @utility container-narrow {
-  @apply max-w-4xl mx-auto;
+  @apply w-full max-w-4xl mx-auto px-5 sm:px-8;
 }
 
 @utility container-wide {
-  @apply max-w-7xl mx-auto;
+  @apply w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-10;
 }
 
 /* ── Gradient backgrounds ────────────────────────── */
