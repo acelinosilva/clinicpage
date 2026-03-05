@@ -66,11 +66,11 @@ export const PLANS: Record<Plan, PlanConfig> = {
   },
   pro: {
     id: 'pro',
-    name: 'Pro',
-    price_brl_monthly: 9700,
-    price_brl_yearly: 87000,
+    name: 'Profissional',
+    price_brl_monthly: 8500,
+    price_brl_yearly: 81600,
     limits: {
-      landing_pages_active: 5,
+      landing_pages_active: 3,
       ai_credits_per_month: 50,
       templates_available: -1,
       custom_domain: true,
@@ -96,9 +96,9 @@ export const PLANS: Record<Plan, PlanConfig> = {
   },
   clinic: {
     id: 'clinic',
-    name: 'Clínica',
-    price_brl_monthly: 19700,
-    price_brl_yearly: 177000,
+    name: 'Clínica Plus',
+    price_brl_monthly: 18500,
+    price_brl_yearly: 177600,
     limits: {
       landing_pages_active: -1,
       ai_credits_per_month: -1,

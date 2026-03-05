@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Plus, LayoutDashboard, TrendingUp, Users, Eye, ArrowRight, Globe, FileText, Pause, Loader2, Sparkles } from 'lucide-react'
 import { createClient } from '@/lib/supabase-client'
+import { PLANS, Plan } from '@/lib/plans'
 import { cn } from '@/lib/utils'
 
 const STATUS_CONFIG = {
@@ -146,12 +147,16 @@ export default function DashboardPage() {
                                 <span className="badge badge-blue font-bold uppercase tracking-wider text-[10px]">Plano {user?.plan === 'free' ? 'Gratuito' : user?.plan === 'pro' ? 'Profissional' : 'Clínica Plus'}</span>
                             </div>
                             <h3 className="text-lg font-bold text-[#0F172A] mb-1">Seu Uso de Landing Pages</h3>
-                            <p className="text-xs text-[#64748B] mb-4">Você está usando {lps.length} de {user?.plan === 'free' ? '1' : user?.plan === 'pro' ? '5' : 'ilimitadas'} landing pages disponíveis no seu plano.</p>
+                            <p className="text-xs text-[#64748B] mb-4">
+                                Você está usando {lps.length} de {user?.plan && PLANS[user?.plan as Plan]?.limits.landing_pages_active === -1 ? 'ilimitadas' : (user?.plan ? PLANS[user?.plan as Plan]?.limits.landing_pages_active : '1')} landing pages disponíveis no seu plano.
+                            </p>
 
                             <div className="w-full bg-[#F1F5F9] h-2 rounded-full overflow-hidden mb-2">
                                 <div
                                     className="bg-[#0D7C66] h-full transition-all duration-500"
-                                    style={{ width: `${Math.min(100, (lps.length / (user?.plan === 'free' ? 1 : user?.plan === 'pro' ? 5 : lps.length || 1)) * 100)}%` }}
+                                    style={{
+                                        width: `${Math.min(100, (lps.length / (user?.plan && PLANS[user?.plan as Plan]?.limits.landing_pages_active !== -1 ? PLANS[user?.plan as Plan].limits.landing_pages_active : lps.length || 1)) * 100)}%`
+                                    }}
                                 />
                             </div>
                         </div>

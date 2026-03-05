@@ -95,11 +95,11 @@ export default function PlansPage() {
                     <ul className="space-y-4 mb-8">
                         <li className="flex items-center gap-3 text-sm text-[#475569]">
                             <Check className="w-4 h-4 text-[#0D7C66] shrink-0" />
-                            1 landing page ativa
+                            {PLANS.free.limits.landing_pages_active} landing page ativa
                         </li>
                         <li className="flex items-center gap-3 text-sm text-[#475569]">
                             <Check className="w-4 h-4 text-[#0D7C66] shrink-0" />
-                            3 créditos de IA p/ mês
+                            {PLANS.free.limits.ai_credits_per_month} créditos de IA p/ mês
                         </li>
                         <li className="flex items-center gap-3 text-sm text-[#475569]">
                             <Check className="w-4 h-4 text-[#0D7C66] shrink-0" />
