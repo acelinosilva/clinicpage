@@ -25,6 +25,29 @@ export async function middleware(request: NextRequest) {
     const supabase = createMiddlewareClient(request, response)
     const { data: { user } } = await supabase.auth.getUser()
 
+    const url = request.nextUrl
+    const host = request.headers.get('host') || ''
+    const mainDomain = process.env.NEXT_PUBLIC_APP_URL?.replace(/^https?:\/\//, '') || 'clinicpage.com.br'
+
+    // ── Custom Domain Logic ──
+    const isCustomDomain = host !== mainDomain && !host.includes('localhost') && !host.includes('vercel.app')
+
+    if (isCustomDomain && !url.pathname.startsWith('/api') && !url.pathname.startsWith('/_next')) {
+        // Search for this domain in Supabase
+        const { data: lp } = await supabase
+            .from('landing_pages')
+            .select('slug')
+            .eq('custom_domain', host.toLowerCase())
+            .eq('status', 'published')
+            .single()
+
+        if (lp) {
+            // Rewrite the URL to the landing page path
+            const newUrl = new URL(`/lp/${lp.slug}${url.pathname === '/' ? '' : url.pathname}`, request.url)
+            return NextResponse.rewrite(newUrl)
+        }
+    }
+
     // If no user and not a public route, redirect to login
     if (!user && !isPublicRoute(request.nextUrl.pathname)) {
         return NextResponse.redirect(new URL('/login', request.url))

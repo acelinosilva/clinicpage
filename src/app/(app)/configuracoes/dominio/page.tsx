@@ -12,33 +12,78 @@ export default function DomainSettingsPage() {
     const [loading, setLoading] = useState(true)
     const [userPlan, setUserPlan] = useState<string>('free')
     const [status, setStatus] = useState<'none' | 'pending' | 'active'>('none')
+    const [landingPages, setLandingPages] = useState<any[]>([])
+    const [selectedLP, setSelectedLP] = useState<string>('')
 
     useEffect(() => {
-        async function loadUser() {
+        async function loadData() {
             try {
                 const supabase = createClient()
                 const { data: { user } } = await supabase.auth.getUser()
                 if (user) {
-                    const { data } = await supabase.from('users').select('plan').eq('id', user.id).single()
-                    if (data) setUserPlan(data.plan)
+                    const { data: profile } = await supabase.from('users').select('plan').eq('id', user.id).single()
+                    if (profile) setUserPlan(profile.plan)
+
+                    const { data: lps } = await supabase
+                        .from('landing_pages')
+                        .select('id, title, custom_domain, slug')
+                        .eq('user_id', user.id)
+                        .eq('status', 'published')
+
+                    if (lps) {
+                        setLandingPages(lps)
+                        // If one LP already has a custom domain, select it
+                        const withDomain = lps.find(lp => lp.custom_domain)
+                        if (withDomain) {
+                            setSelectedLP(withDomain.id)
+                            setDomain(withDomain.custom_domain)
+                            setStatus('active')
+                        } else if (lps.length > 0) {
+                            setSelectedLP(lps[0].id)
+                        }
+                    }
                 }
             } finally {
                 setLoading(false)
             }
         }
-        loadUser()
+        loadData()
     }, [])
 
     const hasDomainAccess = userPlan !== 'free'
 
     const handleSave = async () => {
-        if (!domain) return
+        if (!domain || !selectedLP) return
 
         setSaving(true)
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500))
-        setSaving(false)
-        setStatus('pending')
+        try {
+            const supabase = createClient()
+            // 1. Clear domain from any other LP of this user (optional but safer)
+            const { data: { user } } = await supabase.auth.getUser()
+            if (user) {
+                await supabase
+                    .from('landing_pages')
+                    .update({ custom_domain: null })
+                    .eq('user_id', user.id)
+            }
+
+            // 2. Set domain for selected LP
+            const { error } = await supabase
+                .from('landing_pages')
+                .update({
+                    custom_domain: domain.toLowerCase().trim(),
+                    status: 'published' // Ensure it's published
+                })
+                .eq('id', selectedLP)
+
+            if (error) throw error
+            setStatus('pending')
+        } catch (error) {
+            console.error('Error saving domain:', error)
+            alert('Erro ao salvar domínio. Tente novamente.')
+        } finally {
+            setSaving(false)
+        }
     }
 
     if (loading) {
@@ -85,28 +130,47 @@ export default function DomainSettingsPage() {
                 </div>
 
                 <div className="space-y-6">
-                    <div className="bg-[#F8FAFC] p-4 rounded-xl border border-[#E2E8F0]">
-                        <label className="block text-[10px] font-black uppercase tracking-widest text-[#94A3B8] mb-2">Seu Domínio</label>
-                        <div className="flex gap-3">
-                            <div className="relative flex-1">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8]">
-                                    <LinkIcon className="w-4 h-4" />
-                                </span>
-                                <input
-                                    type="text"
-                                    placeholder="ex: clinica.com.br"
-                                    value={domain}
-                                    onChange={(e) => setDomain(e.target.value)}
-                                    className="w-full bg-white border border-[#E2E8F0] rounded-xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0D7C66]/10 transition-all font-medium"
-                                />
-                            </div>
-                            <button
-                                onClick={handleSave}
-                                disabled={saving || !domain || status === 'active'}
-                                className="btn-primary btn px-6 shrink-0"
+                    <div className="bg-[#F8FAFC] p-6 rounded-2xl border border-[#E2E8F0] space-y-6">
+                        <div className="space-y-4">
+                            <label className="block text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">1. Selecione a Landing Page</label>
+                            <select
+                                value={selectedLP}
+                                onChange={(e) => setSelectedLP(e.target.value)}
+                                className="w-full bg-white border border-[#E2E8F0] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0D7C66]/10 transition-all font-medium appearance-none"
                             >
-                                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Conectar'}
-                            </button>
+                                <option value="" disabled>Escolha uma página...</option>
+                                {landingPages.map(lp => (
+                                    <option key={lp.id} value={lp.id}>{lp.title} ({lp.slug})</option>
+                                ))}
+                            </select>
+                            {landingPages.length === 0 && (
+                                <p className="text-xs text-red-500 font-medium mt-2">Você precisa ter pelo menos uma Landing Page publicada.</p>
+                            )}
+                        </div>
+
+                        <div className="space-y-4">
+                            <label className="block text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">2. Digite seu Domínio</label>
+                            <div className="flex flex-col sm:flex-row gap-3">
+                                <div className="relative flex-1">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8]">
+                                        <LinkIcon className="w-4 h-4" />
+                                    </span>
+                                    <input
+                                        type="text"
+                                        placeholder="ex: clinica.com.br"
+                                        value={domain}
+                                        onChange={(e) => setDomain(e.target.value)}
+                                        className="w-full bg-white border border-[#E2E8F0] rounded-xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0D7C66]/10 transition-all font-medium"
+                                    />
+                                </div>
+                                <button
+                                    onClick={handleSave}
+                                    disabled={saving || !domain || !selectedLP || status === 'active'}
+                                    className="btn-primary btn px-8 shrink-0"
+                                >
+                                    {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : status === 'active' ? 'Conectado' : 'Conectar Domínio'}
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -117,9 +181,9 @@ export default function DomainSettingsPage() {
                                     <AlertCircle className="w-5 h-5 text-yellow-600" />
                                 </div>
                                 <div className="flex-1">
-                                    <h4 className="font-bold text-yellow-800 text-sm mb-1">Ação Requerida: Configurar DNS</h4>
+                                    <h4 className="font-bold text-yellow-800 text-sm mb-1">Passo Final: Configurar Registros Oficiais da Vercel</h4>
                                     <p className="text-yellow-700 text-xs mb-4 leading-relaxed">
-                                        Para ativar seu domínio <strong>{domain}</strong>, você precisa adicionar as seguintes entradas DNS no painel onde registrou seu domínio (Registro.br, GoDaddy, etc).
+                                        Para que seu domínio <strong>{domain}</strong> funcione corretamente no SaaS, você deve configurar estes registros DNS no seu provedor (Registro.br, GoDaddy, Cloudflare).
                                     </p>
 
                                     <div className="bg-white rounded-lg border border-yellow-200 overflow-hidden">
