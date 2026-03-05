@@ -126,7 +126,7 @@ export default function HeroSection({ data, theme }: HeroProps) {
                         </motion.div>
 
                         <h1
-                            className={cn("text-4xl md:text-5xl lg:text-6xl mb-6 leading-[1.1]", styles.heading)}
+                            className={cn("text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-6 leading-[1.1]", styles.heading)}
                             style={{ fontFamily: theme?.typography?.font_heading }}
                         >
                             {data.headline}

@@ -79,7 +79,7 @@ export default function ProblemSolutionSection({ data, theme }: ProblemSolutionP
                             <div className={cn("w-14 h-14 flex items-center justify-center mb-8 shadow-sm", styles.iconProblem)}>
                                 <AlertCircle className="w-7 h-7" />
                             </div>
-                            <h2 className={cn("text-3xl md:text-4xl lg:text-5xl mb-6 leading-tight", styles.heading, templateId === 'black_edition' || templateId === 'retro_classic' ? '' : 'text-slate-900')}>
+                            <h2 className={cn("text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-6 leading-tight", styles.heading, templateId === 'black_edition' || templateId === 'retro_classic' ? '' : 'text-slate-900')}>
                                 {data.problem_headline}
                             </h2>
                             <p className={cn("text-lg md:text-xl leading-relaxed font-medium max-w-lg", templateId === 'black_edition' ? 'text-neutral-400' : templateId === 'retro_classic' ? 'text-[#FDF8F1]/80' : 'text-slate-600')}>
@@ -106,7 +106,7 @@ export default function ProblemSolutionSection({ data, theme }: ProblemSolutionP
                                 A Solução Ideal
                             </motion.span>
                             <h2
-                                className={cn("text-3xl md:text-4xl lg:text-5xl text-slate-900 mb-6 leading-[1.1]", styles.heading)}
+                                className={cn("text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-slate-900 mb-6 leading-[1.1]", styles.heading)}
                                 style={{ fontFamily: theme?.typography?.font_heading }}
                             >
                                 {data.solution_headline}

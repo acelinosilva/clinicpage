@@ -184,7 +184,10 @@ export default function EditorPage() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <button className="btn btn-ghost btn-sm text-[#475569]">
+                    <button
+                        onClick={handlePublish}
+                        className="btn btn-ghost btn-sm text-[#475569]"
+                    >
                         <Eye className="w-4 h-4" />
                         Visualizar
                     </button>

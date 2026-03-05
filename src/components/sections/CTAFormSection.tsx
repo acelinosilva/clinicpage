@@ -86,7 +86,7 @@ export default function CTAFormSection({ data, theme }: CTAFormProps) {
                     {/* Text side */}
                     <div className="text-white">
                         <h2
-                            className="text-4xl md:text-5xl font-black mb-6 leading-tight"
+                            className="text-3xl sm:text-4xl md:text-5xl font-black mb-6 leading-tight"
                             style={{ fontFamily: theme?.typography?.font_heading }}
                         >
                             {data.headline}

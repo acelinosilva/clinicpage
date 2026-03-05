@@ -23,7 +23,7 @@ export default function TestimonialsSection({ data, theme }: TestimonialsProps) 
                     className="text-center mb-16"
                 >
                     <h2
-                        className="text-4xl md:text-5xl font-black text-[#0F172A] mb-4"
+                        className="text-2xl sm:text-4xl md:text-5xl font-black text-[#0F172A] mb-4"
                         style={{ fontFamily: theme?.typography?.font_heading }}
                     >
                         {data.headline}

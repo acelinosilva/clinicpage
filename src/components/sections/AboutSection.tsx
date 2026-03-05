@@ -61,7 +61,7 @@ export default function AboutSection({ data, theme }: AboutProps) {
                     >
                         <span className="badge badge-green mb-6 px-4 py-2 text-[10px] uppercase tracking-widest font-black">Sobre Nós</span>
                         <h2
-                            className="text-4xl md:text-5xl font-black text-[#0F172A] mb-8 leading-tight"
+                            className="text-3xl md:text-4xl lg:text-5xl font-black text-[#0F172A] mb-8 leading-tight"
                             style={{ fontFamily: theme?.typography?.font_heading }}
                         >
                             {data.headline}
