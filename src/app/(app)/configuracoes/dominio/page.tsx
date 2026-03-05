@@ -1,14 +1,35 @@
 'use client'
 
-import { useState } from 'react'
-import { Globe, Link as LinkIcon, AlertCircle, CheckCircle2, Loader2, Info } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Globe, Link as LinkIcon, AlertCircle, CheckCircle2, Loader2, Info, Lock } from 'lucide-react'
+import { createClient } from '@/lib/supabase-client'
+import { useRouter } from 'next/navigation'
 
 export default function DomainSettingsPage() {
+    const router = useRouter()
     const [domain, setDomain] = useState('')
     const [saving, setSaving] = useState(false)
+    const [loading, setLoading] = useState(true)
+    const [userPlan, setUserPlan] = useState<string>('free')
     const [status, setStatus] = useState<'none' | 'pending' | 'active'>('none')
 
-    const hasProPlan = true // In a real app, this comes from user subscription status
+    useEffect(() => {
+        async function loadUser() {
+            try {
+                const supabase = createClient()
+                const { data: { user } } = await supabase.auth.getUser()
+                if (user) {
+                    const { data } = await supabase.from('users').select('plan').eq('id', user.id).single()
+                    if (data) setUserPlan(data.plan)
+                }
+            } finally {
+                setLoading(false)
+            }
+        }
+        loadUser()
+    }, [])
+
+    const hasDomainAccess = userPlan !== 'free'
 
     const handleSave = async () => {
         if (!domain) return
@@ -20,18 +41,29 @@ export default function DomainSettingsPage() {
         setStatus('pending')
     }
 
-    if (!hasProPlan) {
+    if (loading) {
         return (
-            <div className="card text-center py-12">
-                <div className="w-16 h-16 bg-[#0D7C66]/10 text-[#0D7C66] rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <Globe className="w-8 h-8" />
+            <div className="flex items-center justify-center py-20">
+                <Loader2 className="w-8 h-8 animate-spin text-[#0D7C66]" />
+            </div>
+        )
+    }
+
+    if (!hasDomainAccess) {
+        return (
+            <div className="card text-center py-12 bg-white rounded-[2rem] border border-[#E2E8F0] shadow-sm">
+                <div className="w-16 h-16 bg-[#0D7C66]/5 text-[#0D7C66] rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Lock className="w-8 h-8" />
                 </div>
                 <h3 className="text-xl font-bold text-[#0F172A] mb-2">Domínio Personalizado</h3>
                 <p className="text-[#64748B] max-w-md mx-auto mb-6 text-sm">
                     Conecte seu próprio domínio (ex: clinica.com.br) para passar mais credibilidade aos seus pacientes. Recurso disponível a partir do plano Professional.
                 </p>
-                <button className="btn-primary btn">
-                    Fazer Upgrade
+                <button
+                    onClick={() => router.push('/planos')}
+                    className="btn btn-primary px-8"
+                >
+                    Fazer Upgrade agora
                 </button>
             </div>
         )

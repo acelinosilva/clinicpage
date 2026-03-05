@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import {
     ChevronLeft, ChevronRight, Sparkles,
     Check, ArrowRight, Loader2, Globe,
-    Stethoscope, MapPin, Phone, MessageSquare, Brain, Search, Plus, Info, Palette, Layout, Building2
+    Stethoscope, MapPin, Phone, MessageSquare, Brain, Search, Plus, Info, Palette, Layout, Building2, Lock
 } from 'lucide-react'
 import MiniHeroPreview from '@/components/forms/MiniHeroPreview'
 import { cn } from '@/lib/utils'
@@ -34,6 +34,36 @@ export default function CriarLPPage() {
         templateId: 'modern_minimal',
         tone: 'professional_warm'
     })
+
+    const [currentPlan, setCurrentPlan] = useState<Plan>('free')
+    const [lpCount, setLpCount] = useState(0)
+
+    useEffect(() => {
+        async function loadPlan() {
+            try {
+                const supabase = createClient()
+                const { data: { user } } = await supabase.auth.getUser()
+                if (!user) return
+
+                const { data: profile } = await supabase
+                    .from('users')
+                    .select('plan')
+                    .eq('id', user.id)
+                    .single()
+
+                const { count } = await supabase
+                    .from('landing_pages')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('user_id', user.id)
+
+                if (profile) setCurrentPlan(profile.plan as Plan)
+                if (count !== null) setLpCount(count)
+            } catch (err) {
+                console.error('Error loading plan:', err)
+            }
+        }
+        loadPlan()
+    }, [])
 
     const totalSteps = 5
     const progress = (step / totalSteps) * 100
@@ -76,8 +106,6 @@ export default function CriarLPPage() {
                 .select('*', { count: 'exact', head: true })
                 .eq('user_id', user.id)
 
-            const currentPlan = (profile?.plan || 'free') as Plan
-            const lpCount = count || 0
             const planConfig = PLANS[currentPlan]
 
             // Verificação dinâmica de limites
@@ -279,35 +307,46 @@ export default function CriarLPPage() {
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {TEMPLATES.map((tpl) => (
-                                        <button
-                                            key={tpl.id}
-                                            onClick={() => updateFormData({ templateId: tpl.id })}
-                                            className={cn(
-                                                "p-6 rounded-[2rem] border-2 text-left transition-all relative overflow-hidden group",
-                                                formData.templateId === tpl.id
-                                                    ? "border-[#0D7C66] bg-[#0D7C66]/5 shadow-xl shadow-[#0D7C66]/10"
-                                                    : "border-[#E2E8F0] bg-white hover:border-[#0D7C66]/30 hover:bg-[#F8FAFC]"
-                                            )}
-                                        >
-                                            <div className={cn(
-                                                "w-12 h-12 rounded-2xl flex items-center justify-center mb-4 transition-colors",
-                                                formData.templateId === tpl.id ? "bg-[#0D7C66] text-white" : "bg-[#F1F5F9] text-[#64748B] group-hover:bg-[#0D7C66]/10 group-hover:text-[#0D7C66]"
-                                            )}>
-                                                <Globe className="w-6 h-6" />
-                                            </div>
-                                            <h3 className="font-bold text-[#1E293B] mb-1">{tpl.name}</h3>
-                                            <p className="text-xs text-[#64748B] leading-relaxed">{tpl.description}</p>
-
-                                            {formData.templateId === tpl.id && (
-                                                <div className="absolute top-6 right-6">
-                                                    <div className="bg-[#0D7C66] rounded-full p-1 text-white">
-                                                        <Check className="w-3 h-3" />
-                                                    </div>
+                                    {TEMPLATES.map((tpl) => {
+                                        const isLocked = tpl.is_premium && currentPlan === 'free'
+                                        return (
+                                            <button
+                                                key={tpl.id}
+                                                disabled={isLocked}
+                                                onClick={() => !isLocked && updateFormData({ templateId: tpl.id })}
+                                                className={cn(
+                                                    "p-6 rounded-[2rem] border-2 text-left transition-all relative overflow-hidden group",
+                                                    isLocked ? "bg-[#F8FAFC] border-[#E2E8F0] opacity-80 cursor-not-allowed" :
+                                                        formData.templateId === tpl.id
+                                                            ? "border-[#0D7C66] bg-[#0D7C66]/5 shadow-xl shadow-[#0D7C66]/10"
+                                                            : "border-[#E2E8F0] bg-white hover:border-[#0D7C66]/30 hover:bg-[#F8FAFC]"
+                                                )}
+                                            >
+                                                <div className={cn(
+                                                    "w-12 h-12 rounded-2xl flex items-center justify-center mb-4 transition-colors",
+                                                    isLocked ? "bg-[#E2E8F0] text-[#94A3B8]" :
+                                                        formData.templateId === tpl.id ? "bg-[#0D7C66] text-white" : "bg-[#F1F5F9] text-[#64748B] group-hover:bg-[#0D7C66]/10 group-hover:text-[#0D7C66]"
+                                                )}>
+                                                    {isLocked ? <Lock className="w-6 h-6" /> : <Globe className="w-6 h-6" />}
                                                 </div>
-                                            )}
-                                        </button>
-                                    ))}
+                                                <h3 className="font-bold text-[#1E293B] mb-1">{tpl.name}</h3>
+                                                <p className="text-xs text-[#64748B] leading-relaxed mb-4">{tpl.description}</p>
+
+                                                {isLocked ? (
+                                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0D7C66]/10 text-[#0D7C66] text-[10px] font-bold uppercase tracking-widest">
+                                                        <Sparkles className="w-3 h-3" />
+                                                        Plano Pro
+                                                    </div>
+                                                ) : formData.templateId === tpl.id && (
+                                                    <div className="absolute top-6 right-6">
+                                                        <div className="bg-[#0D7C66] rounded-full p-1 text-white">
+                                                            <Check className="w-3 h-3" />
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </button>
+                                        )
+                                    })}
                                 </div>
                             </div>
                         </div>
