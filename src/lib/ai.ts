@@ -166,19 +166,27 @@ Retorne JSON:
     return JSON.parse(raw)
 }
 
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
 export async function generateFullLandingPage(briefing: BriefingData): Promise<{
     sections: Partial<LPSections>
     seo: Partial<LPSEO>
 }> {
-    const [hero, problemSolution, services, about, faq, ctaForm, seo] = await Promise.all([
-        generateHeroSection(briefing),
-        generateProblemSolutionSection(briefing),
-        generateServicesSection(briefing),
-        generateAboutSection(briefing),
-        generateFAQSection(briefing),
-        generateCTAFormSection(briefing),
-        generateSEOMeta(briefing),
-    ])
+    // Para evitar erro 429 (Too Many Requests) em chaves de plano Gratuito do Gemini,
+    // rodamos as chamadas sequencialmente em vez de Promise.all, com um pequeno delay.
+    const hero = await generateHeroSection(briefing)
+    await delay(2000)
+    const problemSolution = await generateProblemSolutionSection(briefing)
+    await delay(2000)
+    const services = await generateServicesSection(briefing)
+    await delay(2000)
+    const about = await generateAboutSection(briefing)
+    await delay(2000)
+    const faq = await generateFAQSection(briefing)
+    await delay(2000)
+    const ctaForm = await generateCTAFormSection(briefing)
+    await delay(2000)
+    const seo = await generateSEOMeta(briefing)
 
     const sections: Partial<LPSections> = {
         hero: {
