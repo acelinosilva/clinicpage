@@ -55,7 +55,7 @@ export async function POST(req: Request) {
         // 4. Criar a sessão de Checkout
         const session = await stripe.checkout.sessions.create({
             customer: customerId,
-            payment_method_types: ['card', 'boleto', 'pix'], // Suporte para métodos brasileiros
+            payment_method_types: ['card'], // 'pix' e 'boleto' não são suportados em modo 'subscription' no Checkout nativo facilmente
             line_items: [
                 {
                     price: priceId,
