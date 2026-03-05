@@ -28,7 +28,12 @@ export async function POST(req: NextRequest) {
 
         const supabase = createServiceClient()
 
-        // 1. Get user and check credits/plan
+        // 1. Verificar configuração de ambiente
+        if (!process.env.GEMINI_API_KEY) {
+            return NextResponse.json({
+                error: 'Chave da IA (GEMINI_API_KEY) não configurada no servidor. Verifique o Vercel ou .env.local'
+            }, { status: 500 })
+        }
         const { data: existingUser, error: userError } = await supabase
             .from('users')
             .select('*')
