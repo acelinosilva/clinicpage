@@ -123,10 +123,10 @@ export default function PrecosPage() {
 
                                     <Link
                                         href="/cadastro"
-                                        className={`btn w-full justify-center mb-6 ${isPopular ? 'btn-primary' : planId === 'clinic' ? 'btn-primary' : 'btn-secondary'
+                                        className={`btn w-full justify-center mb-6 shadow-sm ${isPopular ? 'btn-primary' : planId === 'clinic' ? 'btn-primary' : 'btn-secondary'
                                             }`}
                                     >
-                                        {planId === 'free' ? 'Começar grátis' : 'Assinar agora'}
+                                        {planId === 'free' ? 'Criar conta grátis' : 'Assinar agora'}
                                         <ArrowRight className="w-4 h-4" />
                                     </Link>
 

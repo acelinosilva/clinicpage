@@ -127,7 +127,7 @@ export default function PublicHeader({
                             </a>
                         ) : (
                             <Link href="/cadastro" className="btn-primary btn-sm btn">
-                                Criar Conta
+                                Criar conta grátis
                             </Link>
                         )}
                     </nav>
@@ -199,7 +199,7 @@ export default function PublicHeader({
                         onClick={() => setMobileMenuOpen(false)}
                     >
                         <Rocket className="w-5 h-5" />
-                        Começar Agora
+                        Criar conta grátis
                     </Link>
                 )}
             </div>

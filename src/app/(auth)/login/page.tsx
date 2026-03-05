@@ -153,7 +153,7 @@ export default function LoginPage() {
                     <p className="text-sm font-medium text-[#64748B]">
                         Não tem uma conta?{' '}
                         <Link href="/cadastro" className="text-[#0D7C66] font-bold hover:underline">
-                            Crie agora mesmo
+                            Crie sua conta grátis
                         </Link>
                     </p>
                 </div>
