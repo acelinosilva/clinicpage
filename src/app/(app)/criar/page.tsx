@@ -63,7 +63,27 @@ export default function CriarLPPage() {
                 return
             }
 
-            // Call AI Generation API
+            // 1. Verificar plano e limites
+            const { data: profile } = await supabase
+                .from('users')
+                .select('plan')
+                .eq('id', user.id)
+                .single()
+
+            const { count } = await supabase
+                .from('landing_pages')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+
+            const currentPlan = (profile?.plan || 'free') as 'free' | 'pro' | 'clinic'
+            const lpCount = count || 0
+
+            // Limite de 1 LP para o plano gratuito
+            if (currentPlan === 'free' && lpCount >= 1) {
+                throw new Error('Você atingiu o limite de 1 landing page do plano gratuito. Faça upgrade para criar mais.')
+            }
+
+            // 2. Chamar API de geração com IA
             const response = await fetch('/api/ai/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

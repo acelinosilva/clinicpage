@@ -42,14 +42,21 @@ export default function EditorPage() {
             setError(null)
             try {
                 const supabase = createClient()
+                const { data: { user } } = await supabase.auth.getUser()
+                if (!user) {
+                    router.push('/login')
+                    return
+                }
+
                 const { data, error: fetchError } = await supabase
                     .from('landing_pages')
                     .select('*')
                     .eq('id', id)
+                    .eq('user_id', user.id)
                     .single()
 
                 if (fetchError) throw fetchError
-                if (!data) throw new Error('Landing page não encontrada')
+                if (!data) throw new Error('Landing page não encontrada ou sem permissão')
 
                 setLP(data)
             } catch (err: any) {
@@ -61,24 +68,50 @@ export default function EditorPage() {
         }
 
         loadLP()
-    }, [id, setLP, setLoading, setError])
+    }, [id, setLP, setLoading, setError, router])
 
     const handleSave = async () => {
         setSaving(true)
-        const supabase = createClient()
-        const { error } = await supabase.from('landing_pages').update(lp).eq('id', id)
-        if (!error) {
+        try {
+            const supabase = createClient()
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) throw new Error('Usuário não autenticado')
+
+            const { error } = await supabase
+                .from('landing_pages')
+                .update(lp)
+                .eq('id', id)
+                .eq('user_id', user.id)
+
+            if (error) throw error
             alert('Salvo com sucesso!')
+        } catch (err: any) {
+            alert(err.message)
+        } finally {
+            setSaving(false)
         }
-        setSaving(false)
     }
 
     const handlePublish = async () => {
         setSaving(true)
-        const supabase = createClient()
-        await supabase.from('landing_pages').update({ status: 'published' }).eq('id', id)
-        setSaving(false)
-        window.open(`/lp/${lp?.slug}`, '_blank')
+        try {
+            const supabase = createClient()
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) throw new Error('Usuário não autenticado')
+
+            const { error } = await supabase
+                .from('landing_pages')
+                .update({ status: 'published' })
+                .eq('id', id)
+                .eq('user_id', user.id)
+
+            if (error) throw error
+            window.open(`/lp/${lp?.slug}`, '_blank')
+        } catch (err: any) {
+            alert(err.message)
+        } finally {
+            setSaving(false)
+        }
     }
 
     if (loading) {

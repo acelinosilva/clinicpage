@@ -39,7 +39,7 @@ export async function POST(req: Request) {
 
                 if (userId && planId) {
                     await supabase
-                        .from('profiles')
+                        .from('users')
                         .update({
                             plan: planId,
                             stripe_customer_id: session.customer as string,
@@ -58,21 +58,21 @@ export async function POST(req: Request) {
                 const status = subscription.status
 
                 // Encontrar o usuário por essa assinatura
-                const { data: profile } = await supabase
-                    .from('profiles')
+                const { data: userProfile } = await supabase
+                    .from('users')
                     .select('id')
                     .eq('stripe_subscription_id', subscriptionId)
                     .single()
 
-                if (profile) {
+                if (userProfile) {
                     // Se cancelado ou inadimplente, voltamos pro 'free'
                     if (status === 'canceled' || status === 'unpaid' || status === 'past_due') {
                         await supabase
-                            .from('profiles')
+                            .from('users')
                             .update({ plan: 'free' })
-                            .eq('id', profile.id)
+                            .eq('id', userProfile.id)
 
-                        console.log(`⚠️ [Webhook] User ${profile.id} downgraded to free (Status: ${status})`)
+                        console.log(`⚠️ [Webhook] User ${userProfile.id} downgraded to free (Status: ${status})`)
                     }
                 }
                 break

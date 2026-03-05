@@ -55,6 +55,7 @@ export default function DashboardPage() {
                 const { data: pages } = await supabase
                     .from('landing_pages')
                     .select('*')
+                    .eq('user_id', authUser.id)
                     .order('updated_at', { ascending: false })
 
                 if (pages) {

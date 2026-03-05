@@ -27,7 +27,7 @@ export async function POST(req: Request) {
 
         // 3. Obter ou criar o Customer no Stripe
         const { data: profile } = await supabase
-            .from('profiles')
+            .from('users')
             .select('stripe_customer_id, full_name, email')
             .eq('id', user.id)
             .single()
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
 
             // Salva o ID do Stripe no banco
             await supabase
-                .from('profiles')
+                .from('users')
                 .update({ stripe_customer_id: customerId })
                 .eq('id', user.id)
         }
