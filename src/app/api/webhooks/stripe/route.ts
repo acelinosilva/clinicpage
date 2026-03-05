@@ -5,11 +5,16 @@ import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 
 export async function POST(req: Request) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!url || !serviceKey) {
+        console.error('❌ [STRIPIE WEBHOOK] Supabase keys missing')
+        return new NextResponse('Configuration Error: Supabase keys missing', { status: 500 })
+    }
+
     // Lazy init — avoids build-time crash when env vars not present
-    const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabase = createClient(url, serviceKey)
 
     const body = await req.text()
     const head = await headers()
