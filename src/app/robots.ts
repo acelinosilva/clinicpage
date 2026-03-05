@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
         rules: {
             userAgent: '*',
             allow: '/',
-            disallow: ['/admin/', '/api/', '/lp/'], // Prevent crawling of private areas and generated pages without domains
+            disallow: ['/admin/', '/api/'], // Prevent crawling of private areas and system APIs
         },
         sitemap: `${baseUrl}/sitemap.xml`,
     }
