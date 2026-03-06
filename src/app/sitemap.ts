@@ -1,23 +1,24 @@
 import { MetadataRoute } from 'next'
 import { createServiceClient } from '@/lib/supabase-server'
-import { headers } from 'next/headers'
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 3600 // Revalidate every hour
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const headersList = await headers()
-    const host = headersList.get('host') || 'clinicpage.com.br'
-    const protocol = headersList.get('x-forwarded-proto') || 'https'
-    const baseUrl = `${protocol}://${host}`
+    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://clinicpage.vercel.app').replace(/\/$/, '')
 
     let dynamicRoutes: MetadataRoute.Sitemap = []
 
     try {
         const supabase = createServiceClient()
-        const { data: lps } = await supabase
+        const { data: lps, error } = await supabase
             .from('landing_pages')
             .select('slug, updated_at')
             .eq('status', 'published')
+
+        if (error) {
+            console.error('Supabase error fetching landing pages for sitemap:', error)
+        }
 
         if (lps) {
             dynamicRoutes = lps.map((lp) => ({
@@ -28,7 +29,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             }))
         }
     } catch (error) {
-        console.error('Error generating dynamic sitemap routes:', error)
+        console.error('Unexpected error generating dynamic sitemap routes:', error)
     }
 
     const staticRoutes: MetadataRoute.Sitemap = [
